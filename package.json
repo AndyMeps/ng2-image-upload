@@ -1,6 +1,6 @@
 {
   "name": "ng2-image-upload",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Barebones image upload control for Angular 2",
   "main": "lib/index.js",
   "scripts": {
