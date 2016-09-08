@@ -15,7 +15,8 @@ export class AppComponent {
     this.imageUploadConfig = {
       addSectionHeader: "Custom addSectionHeader",
       uploadedHeader: "Custom uploadedHeader",
-      buttonLabel: "Custom buttonLabel"
+      buttonLabel: "Custom buttonLabel"//,
+      //accepts: [".gif"]
     };
   }
 

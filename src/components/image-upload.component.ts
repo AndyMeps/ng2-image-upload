@@ -2,6 +2,13 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
 import { ImageUpload, ImageUploadConfiguration, IImageUploadConfiguration } from '../models';
 
+/**
+ * Image upload component to be referenced in component markup
+ *
+ * @export
+ * @class ImageUploadComponent
+ * @implements {OnInit}
+ */
 @Component({
     selector: `image-upload`,
     template: `
@@ -12,16 +19,16 @@ import { ImageUpload, ImageUploadConfiguration, IImageUploadConfiguration } from
 
             <div class="upload-container">
                 <div class="upload-item" *ngFor="let image of images; let i = index;" (click)="removeImage(i)">
-                <img  [src]="image.data" style="max-height: 100px; max-width: 100px;" />
-                <p class="upload-title">{{image.fileName}}</p>
-                <p class="upload-file-size">{{image.size | fileSize:1}}</p>
+                    <img [src]="image.data" style="max-height: 100px; max-width: 100px;" />
+                    <p class="upload-title">{{image.fileName}}</p>
+                    <p class="upload-file-size">{{image.size | fileSize:1}}</p>
                 </div>
             </div>
 
             <h4>{{config.addSectionHeader}}</h4>
-            <input type="file" #fileUpload style="display: none;" accept="image/*" (change)="upload(fileUpload.files)"/>
-            <button class="btn btn-bordered" (click)="fileUpload.click()"><i class="fa fa-plus"></i> {{config.buttonLabel}}</button>
-            <p><small>Accepted formats: JPG, PNG and GIF</small></p>
+            <input type="file" #fileUpload style="display: none;" [accept]="config.accepts" (change)="upload(fileUpload.files, fileUpload)" />
+            <button class="btn btn-bordered" (click)="fileUpload.click();"><i class="fa fa-plus"></i> {{config.buttonLabel}}</button>
+            <p *ngIf="config.accepts.indexOf('image/*') === -1"><small>Accepted image formats: {{config.accepts}}</small></p>
             </div>
         </div>
     `,
@@ -47,17 +54,74 @@ import { ImageUpload, ImageUploadConfiguration, IImageUploadConfiguration } from
 })
 export class ImageUploadComponent implements OnInit {
 
+    /**
+     * Configuration object to customize ImageUploadComponent, mapped to ImageUploadComponent.config
+     *
+     * @type {IImageUploadConfiguration}
+     */
     @Input('upload-config') opts: IImageUploadConfiguration;
 
+    /**
+     * OnChange event emitter, show the current state of ImageUploadComponent.images
+     *
+     * @type {EventEmitter<any>}
+     */
     @Output() onChange: EventEmitter<any> = new EventEmitter();
 
+    /**
+     * OnChange event emitter, returns the removed single image.
+     *
+     * @type {EventEmitter<any>}
+     */
+    @Output() onRemove: EventEmitter<any> = new EventEmitter();
+
+    /**
+     * OnAdd event emitter, returns the added single image.
+     *
+     * @type {EventEmitter<any>}
+     */
+    @Output() onAdd: EventEmitter<any> = new EventEmitter();
+
+    // -----------------------------------------------------------------
+
+    /**
+     * Collection of images including data, filename and size.
+     *
+     * @type {ImageUpload[]}
+     */
     public images: ImageUpload[];
 
+    /**
+     * Configuration object to customize ImageUploadComponent
+     *
+     * @type {ImageUploadConfiguration}
+     */
     public config: ImageUploadConfiguration;
 
+    // -----------------------------------------------------------------
+
+    /**
+     * Receives the File object and interprets
+     *
+     * @private
+     * @type {FileReader}
+     */
     private fileReader: FileReader;
+
+    /**
+     * Currently selected file object.
+     *
+     * @private
+     * @type {File}
+     */
     private currentFile: File;
 
+    // -----------------------------------------------------------------
+
+    /**
+     * Creates an instance of ImageUploadComponent.
+     *
+     */
     constructor() {
         this.config = new ImageUploadConfiguration();
 
@@ -68,23 +132,50 @@ export class ImageUploadComponent implements OnInit {
         this.fileReader.addEventListener('load', this._fileReaderLoad);
     }
 
+    /**
+     * Angular2 lifecycle event, triggered after constructor()
+     */
     ngOnInit() {
         this._processOptions();
     }
 
-    public upload(files: File[]) {
-        if (files != null) {
-            this.currentFile = files[0];
-            this.fileReader.readAsDataURL(this.currentFile);
+    // -----------------------------------------------------------------
 
-            files = null;
+    /**
+     * Upload file array
+     *
+     * @param {File[]} files
+     */
+    public upload(files: File[], elem: HTMLInputElement) {
+        let filesLength = files.length;
+
+        if (filesLength > 0) {
+            for(let i = 0; i < filesLength; i++) {
+                this.currentFile = files[i];
+                this.fileReader.readAsDataURL(this.currentFile);
+            }
         }
+
+        elem.value = '';
     }
 
+    /**
+     * Remove an image at index from ImageUploadComponent.images.
+     *
+     * @param {number} index
+     */
     public removeImage(index: number) {
-        this.images.splice(index, 1);
+        let image = this.images.splice(index, 1);
+        this._onRemove(image[0]);
     }
 
+    // -----------------------------------------------------------------
+
+    /**
+     * Process configuration object to set personalisation.
+     *
+     * @private
+     */
     private _processOptions() {
         if(this.opts != null) {
             // addSectionHeader
@@ -101,17 +192,54 @@ export class ImageUploadComponent implements OnInit {
             if (this.opts.buttonLabel != null) {
                 this.config.buttonLabel = this.opts.buttonLabel;
             }
+
+            // accepts
+            if (this.opts.accepts != null) {
+                this.config.accepts = this.opts.accepts;
+            }
         }
     }
 
+    /**
+     * Emit an onchange event
+     *
+     * @private
+     */
     private _onChange() {
         this.onChange.emit(this.images);
     }
 
+    /**
+     * Emit an onremove event
+     *
+     * @private
+     * @param {ImageUpload} image
+     */
+    private _onRemove(image: ImageUpload) {
+        this.onRemove.emit(image);
+    }
+
+    /**
+     * Emit an onadd event
+     *
+     * @private
+     * @param {ImageUpload} image
+     */
+    private _onAdd(image: ImageUpload) {
+        this.onAdd.emit(image);
+    }
+
+    /**
+     * Called after file read
+     *
+     * @private
+     */
     private _fileReaderLoad = () => {
         let data = this.fileReader.result;
 
         let img = new ImageUpload(data, this.currentFile.name, this.currentFile.size);
+
+        this._onAdd(img);
 
         this.images.push(img);
 
