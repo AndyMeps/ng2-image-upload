@@ -65,13 +65,7 @@ export class ImageUploadComponent implements OnInit {
 
         this.fileReader = new FileReader();
 
-        this.fileReader.addEventListener('load', () => {
-            let data = this.fileReader.result;
-
-            let img = new ImageUpload(data, this.currentFile.name, this.currentFile.size);
-
-            this.images.push(img);
-        });
+        this.fileReader.addEventListener('load', this._fileReaderLoad);
     }
 
     ngOnInit() {
@@ -108,6 +102,20 @@ export class ImageUploadComponent implements OnInit {
                 this.config.buttonLabel = this.opts.buttonLabel;
             }
         }
+    }
+
+    private _onChange() {
+        this.onChange.emit(this.images);
+    }
+
+    private _fileReaderLoad = () => {
+        let data = this.fileReader.result;
+
+        let img = new ImageUpload(data, this.currentFile.name, this.currentFile.size);
+
+        this.images.push(img);
+
+        this._onChange();
     }
 
 }

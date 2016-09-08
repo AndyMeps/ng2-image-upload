@@ -1,2 +1,2 @@
-# ng2-imageupload
+# ng2-image-upload
 Barebones image upload control for Angular 2

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { IImageUploadConfiguration } from 'ng2-imageupload';
+import { IImageUploadConfiguration, ImageUpload } from 'ng2-image-upload';
 
 @Component({
   selector: 'app-root',
@@ -17,5 +17,9 @@ export class AppComponent {
       uploadedHeader: "Custom uploadedHeader",
       buttonLabel: "Custom buttonLabel"
     };
+  }
+
+  public imageUploadChanged = (value: ImageUpload[]) => {
+    console.log(value);
   }
 }

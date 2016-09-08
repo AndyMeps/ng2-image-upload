@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AndyMeps/ng2-imageupload.git"
+    "url": "git+https://github.com/AndyMeps/ng2-image-upload.git"
   },
   "keywords": [
     "image",
@@ -21,9 +21,9 @@
   "author": "Andy Mepham",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/AndyMeps/ng2-imageupload/issues"
+    "url": "https://github.com/AndyMeps/ng2-image-upload/issues"
   },
-  "homepage": "https://github.com/AndyMeps/ng2-imageupload#readme",
+  "homepage": "https://github.com/AndyMeps/ng2-image-upload#readme",
   "dependencies": {
     "@angular/common": "^2.0.0-rc.6",
     "@angular/core": "^2.0.0-rc.6",

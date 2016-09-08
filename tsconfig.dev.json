@@ -7,7 +7,7 @@
         "sourceMap": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "outDir": "demo/node_modules/ng2-imageupload",
+        "outDir": "demo/node_modules/ng2-image-upload",
         "declaration": true,
         "removeComments": true
     },
