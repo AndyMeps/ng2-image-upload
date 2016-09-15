@@ -11,7 +11,10 @@ export class AppComponent {
 
   public imageUploadConfig: IImageUploadConfiguration;
 
+  public imageUploadModel: ImageUpload[];
+
   constructor() {
+    this.imageUploadModel = [];
     this.imageUploadConfig = {
       addSectionHeader: "Custom addSectionHeader",
       uploadedHeader: "Custom uploadedHeader",
@@ -20,7 +23,12 @@ export class AppComponent {
     };
   }
 
-  public imageUploadChanged = (value: ImageUpload[]) => {
+  public imageUploadChanged = (value: any) => {
     console.log(value);
+    console.log(this.imageUploadModel);
+  }
+
+  public getImagesUploaded = () => {
+    console.log(this.imageUploadModel);
   }
 }

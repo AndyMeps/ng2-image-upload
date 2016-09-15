@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, Self } from '@angular/core';
+import { NgModel, ControlValueAccessor } from '@angular/forms';
 
 import { ImageUpload, ImageUploadConfiguration, IImageUploadConfiguration } from '../models';
 
@@ -10,15 +11,15 @@ import { ImageUpload, ImageUploadConfiguration, IImageUploadConfiguration } from
  * @implements {OnInit}
  */
 @Component({
-    selector: `image-upload`,
+    selector: `image-upload[ngModel]`,
     template: `
         <div class="row images-detail">
             <div class="col-xs-12">
 
-            <h4 *ngIf="images.length > 0">{{config.uploadedHeader}}</h4>
+            <h4 *ngIf="cd.viewModel.length > 0">{{config.uploadedHeader}}</h4>
 
             <div class="upload-container">
-                <div class="upload-item" *ngFor="let image of images; let i = index;" (click)="removeImage(i)">
+                <div class="upload-item" *ngFor="let image of cd.viewModel; let i = index;" (click)="removeImage(i)">
                     <img [src]="image.data" style="max-height: 100px; max-width: 100px;" />
                     <p class="upload-title">{{image.fileName}}</p>
                     <p class="upload-file-size">{{image.size | fileSize:1}}</p>
@@ -50,9 +51,10 @@ import { ImageUpload, ImageUploadConfiguration, IImageUploadConfiguration } from
 
         `.upload-file-size {
             font-weight: bold; }`
-    ]
+    ],
+    providers: [ NgModel ]
 })
-export class ImageUploadComponent implements OnInit {
+export class ImageUploadComponent implements ControlValueAccessor, OnInit {
 
     /**
      * Configuration object to customize ImageUploadComponent, mapped to ImageUploadComponent.config
@@ -60,13 +62,6 @@ export class ImageUploadComponent implements OnInit {
      * @type {IImageUploadConfiguration}
      */
     @Input('upload-config') opts: IImageUploadConfiguration;
-
-    /**
-     * OnChange event emitter, show the current state of ImageUploadComponent.images
-     *
-     * @type {EventEmitter<any>}
-     */
-    @Output() onChange: EventEmitter<any> = new EventEmitter();
 
     /**
      * OnChange event emitter, returns the removed single image.
@@ -84,12 +79,10 @@ export class ImageUploadComponent implements OnInit {
 
     // -----------------------------------------------------------------
 
-    /**
-     * Collection of images including data, filename and size.
-     *
-     * @type {ImageUpload[]}
-     */
-    public images: ImageUpload[];
+    public cd: NgModel;
+
+    public onChange: any = Function.prototype;
+    public onTouched: any = Function.prototype;
 
     /**
      * Configuration object to customize ImageUploadComponent
@@ -116,16 +109,20 @@ export class ImageUploadComponent implements OnInit {
      */
     private currentFile: File;
 
+    private files: ImageUpload[];
+
     // -----------------------------------------------------------------
 
     /**
      * Creates an instance of ImageUploadComponent.
      *
      */
-    constructor() {
-        this.config = new ImageUploadConfiguration();
+    constructor(@Self() cd: NgModel) {
+        this.cd = cd;
+        cd.valueAccessor = this;
 
-        this.images = [];
+        this.files = [];
+        this.config = new ImageUploadConfiguration();
 
         this.fileReader = new FileReader();
 
@@ -140,6 +137,10 @@ export class ImageUploadComponent implements OnInit {
     }
 
     // -----------------------------------------------------------------
+
+    public writeValue(value: any): void {
+
+    }
 
     /**
      * Upload file array
@@ -165,7 +166,8 @@ export class ImageUploadComponent implements OnInit {
      * @param {number} index
      */
     public removeImage(index: number) {
-        let image = this.images.splice(index, 1);
+        let image = this.files.splice(index, 1);
+        this.cd.viewToModelUpdate(this.files);
         this._onRemove(image[0]);
     }
 
@@ -201,15 +203,6 @@ export class ImageUploadComponent implements OnInit {
     }
 
     /**
-     * Emit an onchange event
-     *
-     * @private
-     */
-    private _onChange() {
-        this.onChange.emit(this.images);
-    }
-
-    /**
      * Emit an onremove event
      *
      * @private
@@ -241,9 +234,16 @@ export class ImageUploadComponent implements OnInit {
 
         this._onAdd(img);
 
-        this.images.push(img);
+        this.files.push(img);
+        this.cd.viewToModelUpdate(this.files);
+    }
 
-        this._onChange();
+    public registerOnChange(fn:(_:any) => {}):void {
+        this.onChange = fn;
+    }
+
+    public registerOnTouched(fn:() => {}):void {
+        this.onTouched = fn;
     }
 
 }

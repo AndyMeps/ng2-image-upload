@@ -1,1 +1,3 @@
-<image-upload [upload-config]="imageUploadConfig" (onChange)="imageUploadChanged($event)"></image-upload>
+<image-upload [(ngModel)]="imageUploadModel" [upload-config]="imageUploadConfig"></image-upload>
+
+<button (click)="getImagesUploaded()">List Images to Console</button>
