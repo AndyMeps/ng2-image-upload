@@ -14,7 +14,7 @@ export class ImageUploadConfiguration implements IImageUploadConfiguration {
     constructor() {
         this.addSectionHeader = 'Select Images:';
         this.uploadedHeader = 'Uploaded Images:';
-        this.buttonLabel = "Choose Image";
-        this.accepts = ["image/*"];
+        this.buttonLabel = 'Choose Image';
+        this.accepts = ['image/*'];
     }
 }

@@ -151,7 +151,7 @@ export class ImageUploadComponent implements ControlValueAccessor, OnInit {
         let filesLength = files.length;
 
         if (filesLength > 0) {
-            for(let i = 0; i < filesLength; i++) {
+            for (let i = 0; i < filesLength; i++) {
                 this.currentFile = files[i];
                 this.fileReader.readAsDataURL(this.currentFile);
             }
@@ -179,7 +179,7 @@ export class ImageUploadComponent implements ControlValueAccessor, OnInit {
      * @private
      */
     private _processOptions() {
-        if(this.opts != null) {
+        if (this.opts != null) {
             // addSectionHeader
             if (this.opts.addSectionHeader != null) {
                 this.config.addSectionHeader = this.opts.addSectionHeader;
@@ -238,11 +238,11 @@ export class ImageUploadComponent implements ControlValueAccessor, OnInit {
         this.cd.viewToModelUpdate(this.files);
     }
 
-    public registerOnChange(fn:(_:any) => {}):void {
+    public registerOnChange(fn: (_: any) => {}): void {
         this.onChange = fn;
     }
 
-    public registerOnTouched(fn:() => {}):void {
+    public registerOnTouched(fn: () => {}): void {
         this.onTouched = fn;
     }
 
