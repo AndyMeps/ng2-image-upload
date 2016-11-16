@@ -39,7 +39,6 @@ const BYTES_IN_ONE_MB = 1048576;
             <input type="file" #fileUpload style="display: none;" [accept]="config.accepts" (change)="upload(fileUpload.files, fileUpload)" />
             <button class="btn btn-bordered" (click)="fileUpload.click();"><i class="fa fa-plus"></i> {{config.buttonLabel}}</button>
             <p *ngIf="config.accepts.indexOf('image/*') === -1"><small>Accepted image formats: {{config.accepts}}</small></p>
-            <p>{{totalUploadedSize | fileSize:1}}</p>
             </div>
         </div>
     `,
