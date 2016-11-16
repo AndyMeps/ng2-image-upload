@@ -1,7 +1,10 @@
 import { Component, Input, Output, EventEmitter, OnInit, Self } from '@angular/core';
 import { NgModel, ControlValueAccessor } from '@angular/forms';
 
-import { ImageUpload, ImageUploadConfiguration, IImageUploadConfiguration } from '../models';
+import { ImageUpload, ImageUploadConfiguration, IImageUploadConfiguration, Error } from '../models';
+import { ErrorType } from '../enums';
+
+const BYTES_IN_ONE_MB = 1048576;
 
 /**
  * Image upload component to be referenced in component markup
@@ -19,8 +22,14 @@ import { ImageUpload, ImageUploadConfiguration, IImageUploadConfiguration } from
             <h4 *ngIf="cd.viewModel.length > 0">{{config.uploadedHeader}}</h4>
 
             <div class="upload-container">
-                <div class="upload-item" *ngFor="let image of cd.viewModel; let i = index;" (click)="removeImage(i)">
-                    <img [src]="image.data" style="max-height: 100px; max-width: 100px;" />
+                <div class="upload-item" *ngFor="let image of cd.viewModel; let i = index;">
+                    <div class="image-area">
+                        <div class="upload-item-overlay">
+                            <span class="remove-upload" (click)="removeImage(i)">×</span>
+                        </div>
+                        <img [src]="image.data" style="max-height: 100px; max-width: 100px;" />
+                    </div>
+
                     <p class="upload-title">{{image.fileName}}</p>
                     <p class="upload-file-size">{{image.size | fileSize:1}}</p>
                 </div>
@@ -30,6 +39,7 @@ import { ImageUpload, ImageUploadConfiguration, IImageUploadConfiguration } from
             <input type="file" #fileUpload style="display: none;" [accept]="config.accepts" (change)="upload(fileUpload.files, fileUpload)" />
             <button class="btn btn-bordered" (click)="fileUpload.click();"><i class="fa fa-plus"></i> {{config.buttonLabel}}</button>
             <p *ngIf="config.accepts.indexOf('image/*') === -1"><small>Accepted image formats: {{config.accepts}}</small></p>
+            <p>{{totalUploadedSize | fileSize:1}}</p>
             </div>
         </div>
     `,
@@ -38,6 +48,7 @@ import { ImageUpload, ImageUploadConfiguration, IImageUploadConfiguration } from
             display: flex; }`,
 
         `.upload-item {
+            position: relative;
             display: inline-block;
             max-width: 120px;
             text-align: center; }`,
@@ -50,7 +61,29 @@ import { ImageUpload, ImageUploadConfiguration, IImageUploadConfiguration } from
             word-wrap: break-word; }`,
 
         `.upload-file-size {
-            font-weight: bold; }`
+            font-weight: bold; }`,
+
+        `.image-area {
+            min-height: 35px;
+            position: relative; }`,
+
+        `.image-area > .upload-item-overlay {
+            display: none; }`,
+
+        `.image-area:hover > .upload-item-overlay {
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,.6);
+            text-align: right;
+            z-index: 2; }`,
+
+        `.remove-upload {
+            font-size: 25px;
+            margin-right: 8px;
+            color: #ff0000;
+            cursor: pointer; }`
     ],
     providers: [ NgModel ]
 })
@@ -76,6 +109,14 @@ export class ImageUploadComponent implements ControlValueAccessor, OnInit {
      * @type {EventEmitter<any>}
      */
     @Output() onAdd: EventEmitter<any> = new EventEmitter();
+
+    /**
+     * OnError event emitter, returns an error message.
+     *
+     * @type {EventEmitter<any>}
+     * @memberOf ImageUploadComponent
+     */
+    @Output() onError: EventEmitter<any> = new EventEmitter();
 
     // -----------------------------------------------------------------
 
@@ -134,6 +175,15 @@ export class ImageUploadComponent implements ControlValueAccessor, OnInit {
      */
     ngOnInit() {
         this._processOptions();
+    }
+
+    get totalUploadedSize() {
+        let total = 0;
+
+        for (let i = 0; i < this.files.length; i++) {
+            total += this.files[i].size;
+        }
+        return total;
     }
 
     // -----------------------------------------------------------------
@@ -199,6 +249,11 @@ export class ImageUploadComponent implements ControlValueAccessor, OnInit {
             if (this.opts.accepts != null) {
                 this.config.accepts = this.opts.accepts;
             }
+
+            // maxFilesizeSum
+            if (this.opts.maxFilesizeSum != null) {
+                this.config.maxFilesizeSum = this.opts.maxFilesizeSum;
+            }
         }
     }
 
@@ -222,6 +277,10 @@ export class ImageUploadComponent implements ControlValueAccessor, OnInit {
         this.onAdd.emit(image);
     }
 
+    private _onError(error: Error) {
+        this.onError.emit(error);
+    }
+
     /**
      * Called after file read
      *
@@ -232,10 +291,26 @@ export class ImageUploadComponent implements ControlValueAccessor, OnInit {
 
         let img = new ImageUpload(data, this.currentFile.name, this.currentFile.size);
 
+        if (!this._validateFilesize(img)) return;
+
         this._onAdd(img);
 
         this.files.push(img);
         this.cd.viewToModelUpdate(this.files);
+    }
+
+    private _validateFilesize = (image: ImageUpload) => {
+        debugger;
+        if (this.config.maxFilesizeSum != null) {
+            let total = (this.totalUploadedSize + image.size) / BYTES_IN_ONE_MB;
+
+            if (total > this.config.maxFilesizeSum) {
+                this._onError({ type: ErrorType.ExceedsUploadLimit, message: `Limit is set to ${this.config.maxFilesizeSum} MB, got ${total} MB.`});
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public registerOnChange(fn: (_: any) => {}): void {
