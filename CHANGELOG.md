@@ -1,3 +1,10 @@
+<a name="1.0.0"></a>
+# [1.0.0](https://github.com/andymeps/ng2-image-upload/compare/v0.2.3...v1.0.0) (2016-12-02)
+
+### Notes
+
+* Bumped the version number to 1.0.0 as this library is now being used in production implementations.
+
 <a name="0.2.3"></a>
 # [0.2.3](https://github.com/andymeps/ng2-image-upload/compare/v0.2.2...v0.2.3) (2016-11-16)
 
