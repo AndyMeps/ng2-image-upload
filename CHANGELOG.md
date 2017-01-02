@@ -1,3 +1,10 @@
+<a name="1.1.0"></a>
+# [1.1.0](https://github.com/andymeps/ng2-image-upload/compare/v1.0.0...v1.1.0) (2017-01-02)
+
+### Notes
+
+* Migrated to latest version of angular 2, ng2-bootstrap and angular-cli for demo site.
+
 <a name="1.0.0"></a>
 # [1.0.0](https://github.com/andymeps/ng2-image-upload/compare/v0.2.3...v1.0.0) (2016-12-02)
 
