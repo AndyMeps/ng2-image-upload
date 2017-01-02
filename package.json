@@ -1,12 +1,15 @@
 {
   "name": "ng2-image-upload",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Barebones image upload control for Angular 2",
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
     "prepublish": "tsc -p tsconfig.json",
-    "lint:ts": "tslint \"src/**/*.ts\""
+    "lint:ts": "tslint \"src/**/*.ts\"",
+    "bump:patch": "npm version patch -m \"%s [skip ci]\"",
+    "bump:minor": "npm version minor -m \"%s [skip ci]\"",
+    "bump:major": "npm version major -m \"%s [skip ci]\""
   },
   "repository": {
     "type": "git",

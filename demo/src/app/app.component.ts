@@ -16,6 +16,7 @@ export class AppComponent {
   constructor() {
     this.imageUploadModel = [];
     this.imageUploadConfig = {
+      maxFilesizeSum: 10,
       addSectionHeader: "Custom addSectionHeader",
       uploadedHeader: "Custom uploadedHeader",
       buttonLabel: "Custom buttonLabel"//,
@@ -30,5 +31,9 @@ export class AppComponent {
 
   public getImagesUploaded = () => {
     console.log(this.imageUploadModel);
+  }
+
+  public onError = (message: string) => {
+    console.log(message);
   }
 }
